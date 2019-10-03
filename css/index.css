@@ -1,0 +1,57 @@
+#euro_bitcoin_converter
+	{
+		font-family: Courier;
+		text-align: center;
+	}
+
+#ebc_title
+{
+	color:#fff;
+	background-color: rgb(255,126,0);
+	padding: 15px 15px 15px 15px;
+	-moz-border-radius:12px;
+	-khtml-border-radius: 12px;
+	-webkit-border-radius: 12px;
+	border-radius:12px;
+}
+#ebc_container	{
+		margin: 10px auto;
+
+		border-top: 1px solid #000 ;
+		border-right:  1px solid #777;
+		border-left: 1px solid #000;
+		border-bottom:  1px solid #777;
+
+		color: #eee;
+		background-color: rgb(6, 35, 50);
+		text-shadow: 2px 2px 4px black;
+
+		-moz-border-radius:12px;
+		-khtml-border-radius: 12px;
+		-webkit-border-radius: 12px;
+		border-radius:12px;
+
+		padding: 15px 15px 15px 15px;
+	}
+
+#ebc_base
+{
+	padding: 5px 5px 5px 5px;
+
+	color: #fff;
+	background-color: rgb(15,62,88);
+	border: 1px solid rgb(39,82,105) ;
+
+	text-align: center;
+
+	min-width: 80px;
+	max-width: 200px;
+	width: 120px;
+}
+#ebc_footer{
+	color: #999;
+
+}
+.ebc_love{
+	color: red;
+}
