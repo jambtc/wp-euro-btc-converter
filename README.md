@@ -1,13 +1,19 @@
 === Euro Bitcoin Converter  ===
+
 Contributors: Sergio Casizzone
+
 Donate link: https://www.paypal.me/SergioCasizzone
+
 Tags: euro, bitcoin, fiat, money, price, bitstamp, realtime
+
 Requires at least: 3.0.1
 Tested up to: 4.9.8
 Requires PHP: 5.6
 Stable tag: 1.0
+
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
+
 
 Display the real-time Bitcoin Price in Euro on Bitstamp Exchange. You can input any amount and it convert for you.
 
@@ -55,7 +61,7 @@ Yes. Also works in widgets.
 
 = Copyright =
 
-Copyright (c) 2018, [SERGIO CASIZZONE](https://www.sergiocasizzone.it/). All rights reserved.
+Copyright (c) 2018, [SERGIO CASIZZONE](https://sergiocasizzone.altervista.org/). All rights reserved.
 
 == Screenshots ==
 

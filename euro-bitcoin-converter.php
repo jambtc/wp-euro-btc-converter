@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Euro Bitcoin Converter
-Version: 1.0
+Version: 1.1
 Plugin URI: https://wordpress.org/plugins/euro-bitcoin-converter/
 Author: SERGIO CASIZZONE
-Author URI: https://www.sergiocasizzone.it/
+Author URI: https://sergiocasizzone.altervista.org/
 Description: Crea un widget in cui inserendo la quantità di euro converte all'istante il valore in Bitcoin. Il prezzo si aggiorna automaticamente, non è necessario aggiornare la pagina. Shortcode: <code>[euro_converter]</code>
 Text Domain: euro-bitcoin-converter
 Domain Path: /languages
@@ -23,7 +23,6 @@ if (!class_exists('EURO_BITCOIN_CONVERTER')) {
 
         function euro_converter_plugin_includes() {
             add_action('plugins_loaded', array($this, 'plugins_loaded_handler'));
-            add_action('wp_enqueue_scripts', 'euro_converter_header_script');
             add_shortcode('euro_converter', 'euro_converter_init');
             //allows shortcode execution in the widget, excerpt and content
             add_filter('widget_text', 'do_shortcode');
@@ -45,38 +44,59 @@ if (!class_exists('EURO_BITCOIN_CONVERTER')) {
     $GLOBALS['euro_bitcoin_converter'] = new EURO_BITCOIN_CONVERTER_WIDGET();
 }
 
-function euro_converter_header_script() {
-    if (!is_admin()) {
-        $plugin_url = plugins_url('', __FILE__);
-        wp_register_script('pusher-js', $plugin_url . '/js/pusher.min.js', array(), '4.3.1', false);
-        wp_enqueue_script('pusher-js');
-    }
-}
-
 function euro_converter_footer_script()
 {
-    echo "<!-- inizio - Euro Bitcoin Converter by SERGIO CASIZZONE -->";
-    echo "<script type=\"text/javascript\">\n";
+	echo "<!-- inizio - real_time_btc_price_bitstamp by SERGIO CASIZZONE -->";
+	echo "<script src='https://code.jquery.com/jquery-1.12.4.js'></script>";
+	echo "<script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js'></script>";
+	echo "<script type=\"text/javascript\">\n";
+
 	echo "ebc_base = 0;\n";
 	echo "ebc_quote = 0;\n";
 	echo "ebc_result = 0;\n";
+
+	echo "var ws = new WebSocket('wss://ws.bitstamp.net');"; // New websocket v. 2 for Bitstamp
+	echo "var subscription = {
+			'event': 'bts:subscribe',
+			'data': {
+				'channel': 'live_trades_btceur'
+			}
+	};"; // Creo l'oggetto per la sottoscrizione del canale
+
+		echo "ws.onopen = function () {
+		ws.send(JSON.stringify(subscription));
+	};"; // invio la sottoscrizione
+
+	echo "ws.onmessage = function (evt) {
+		response = JSON.parse(evt.data);
+		switch (response.event) {
+			case 'trade': {
+				$('#ebc_price').html(response.data.price);
+				// Run the effect
+				var options = {'color':'green'};
+  				$( '#ebc_price' ).effect( 'highlight', options, 500, callback );
+				ebc_quote = response.data.price;
+				console.log('[Bitstamp WebSocket]:',response.data.price);
+				break;
+			}
+			case 'bts:request_reconnect': {
+				ws = new WebSocket('wss://ws.bitstamp.net');
+				break;
+			}
+		}
+	};"; // gestisco il response
+
+	echo "// Callback function to bring a hidden box back
+			function callback() {
+  				setTimeout(function() {
+    				$( '#ebc_price' ).removeAttr( 'style' ).hide().fadeIn();
+  				}, 1000 );
+	};";
+
 	echo "function ebc_arrotonda(numero,x) {\n";
 	echo "	var number = Math.round(numero*Math.pow(10,x))/Math.pow(10,x);\n";
 	echo "	return Number(number.toString().substring(0,11));\n";
 	echo "}\n";
-	echo "ebc_pusher = new Pusher('de504dc5763aeef9ff52'); // Pusher key for Bitstamp\n";
-	echo "var ebc_channel = ebc_pusher.subscribe('live_trades_btceur'); // subscribe live trade data for btc-eur pair\n";
-	echo "ebc_channel.bind('trade', function (data) { // callback on message receipt\n";
-	echo "	$('#ebc_base').removeAttr('disabled');\n";
-
-	echo "	ebc_base = document.getElementById('ebc_base').value;\n";
-	echo "	ebc_quote = data.price;\n";
-	echo "	ebc_result = ebc_arrotonda( ebc_base / ebc_quote , 8);\n";
-
-	echo "	$('#ebc_price').html(ebc_quote);\n";
-	echo "	$('#ebc_result').html( ebc_result );\n";
-	//echo "	pusher.disconnect();\n"; // in this way price updates continuosly
-	echo "});\n";
 
 	echo "function ebc_check(){\n";
 	echo "	ebc_base = document.getElementById('ebc_base').value;\n";
@@ -85,7 +105,7 @@ function euro_converter_footer_script()
 	echo "}\n";
 
 	echo "</script>\n";
-    echo "<!-- fine - Euro Bitcoin Converter by SERGIO CASIZZONE -->\n";
+	echo "<!-- fine - real_time_btc_price_bitstamp by SERGIO CASIZZONE -->\n";
 }
 
 function euro_converter_init($atts) {
@@ -110,7 +130,7 @@ function euro_converter_init($atts) {
 	$output .= "		<div class='ebc_right'><span id='ebc_price'><img src='".$plugin_url."/images/loading.gif' width='20' height='20' alt='loading...' /></span></div>";
 	$output .= "		<br><br>";
 	$output .= "		<div class='ebc_left'>Amount</div>";
-	$output .= "		<div class='ebc_right'><input id='ebc_base' value='1' type='number' disabled='disabled' onchange='ebc_check();' /><i class='fa fa-eur' style='color:#3d9400;'></i></div>";
+	$output .= "		<div class='ebc_right'><input id='ebc_base' value='1' type='number' onchange='ebc_check();' /><i class='fa fa-eur' style='color:#3d9400;'></i></div>";
 	$output .= "		<br>";
 	$output .= "		<div class='ebc_left'>Bitcoin changeover</div>";
 	$output .= "		<div class='ebc_right'><span id='ebc_result'></span><i class='fa fa-btc' style='color:#FF6600;'></i></div>";
